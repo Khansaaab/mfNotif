@@ -1,0 +1,63 @@
+
+
+Mf Notification Service
+
+Tech Stack Used :->
+    a) nodejs --> Backend (passport,session,twilio etc)
+    b) mongodb(noSql) --> database
+    c) rabbitmq(AMQP) --> queueing messages
+    d) angular  --> frontend(ejs)
+
+
+
+We have two servers for publishing and consuming from queue.
+
+1. webApp  -> node start.js
+     starts sever , make connection with database ,make connection with rabbitmq(AMQP) for queueing messages
+        a) check for order that shipped and will be pushed to queue name "notifs"
+        b) make connection with twilio and send message to recipient address.
+2 consumer/worker --> node server/consumer.js
+    start servers,make connectionwith database,make connection with rabbitmq(AMQP) and listien to the Queue "notifs"
+    a) will consume messages from queue and will push SMS to recipient address using twilio.
+    b) consumer can be connected to any queue and starting listiening the messages.
+
+Pages :-> 
+    localhost:8080/  --> login need to provide username and password.
+       a) (Did not create registration page so need to hard code data into db "userdetails collection")
+       b) for authentication using passport's localstretagy and express session.
+    localhost:8080/userdetails ---> will have user details and will subscribe to notification.
+
+Library --> sever/sendnotif.server.library
+	Having all the library function here including send and get messages
+
+models --> 
+	connction --> need to install mongodb on locally and create one database called "mfnotif"
+	created two collection 
+	a) userdetails  --> user data will be stored here 
+	b) notifdetails --> notifcation that we are sending to twilio will be store here.
+
+
+
+
+for Eg --> userdetails i have in my database and just add this data to collection
+
+
+{
+    "createdDate" : ISODate("2020-09-27T10:35:38.156Z"),
+    "password" : "12345678",
+    "username" : "farhan@mail.com",
+    "subscribed" : true,
+}
+
+for notification--> this data will be added automatically into database once we ll star sending sms to customer
+	{
+   "createdDate" : ISODate("2020-09-28T08:52:54.718Z"),
+    "username" : "farhan@mail.com",
+    "messageDetails" : {
+        "body" : "Sent from your Twilio trial account - Hi,Your Order placed now",
+        "dateCreated" : ISODate("2020-09-28T08:53:37.000Z"),
+        "from" : "+16233994574",
+        "to" : "+916383085078"
+    },
+
+}
